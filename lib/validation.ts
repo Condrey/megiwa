@@ -218,6 +218,7 @@ export const sellingPriceSchema = z
       .describe("A special wholesale price"),
     promotionAmount: z.number().nullish().describe("The wholesale price"),
     currency: z.string().describe("The currency"),
+    isCurrentPrice: z.boolean(),
     goodQty: z.enum(GoodQty, { error: "Please select a correct unit." }),
     commodityId: z.string().describe("The commodity being sold"),
     effectiveDateAt: z.date({ error: "Choose a correct date." }).optional(),
