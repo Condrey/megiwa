@@ -41,6 +41,7 @@ export default function FormAddEditSellingPrice({
       baseAmount: sellingPrice?.baseAmount!,
       specialBaseAmount: sellingPrice?.specialBaseAmount,
       wholesaleAmount: sellingPrice?.wholesaleAmount!,
+      isCurrentPrice: sellingPrice?.isCurrentPrice || true,
       specialWholesaleAmount: sellingPrice?.specialWholesaleAmount,
       promotionAmount: sellingPrice?.promotionAmount,
       otherGoodQty: sellingPrice?.otherGoodQty,
