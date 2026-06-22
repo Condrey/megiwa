@@ -1,0 +1,294 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  contact       String?
+  role          String?   @default("user")
+  orders        Order[]
+  sales         Sale[]
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  members     Member[]
+  invitations Invitation[]
+
+  @@map("user")
+}
+
+model Order {
+  id             String       @id @default(uuid())
+  company        Company      @relation(fields: [companyId], references: [id])
+  companyId      String
+  orderItems     OrderItem[]
+  orderedBy      User?        @relation(fields: [orderedById], references: [id])
+  orderedById    String?
+  totalAmount    Float
+  orderDate      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  updatedAt      DateTime     @updatedAt
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id              String    @id @default(uuid())
+  order           Order     @relation(fields: [orderId], references: [id])
+  orderId         String
+  commodity       Commodity @relation(fields: [commodityId], references: [id])
+  commodityId     String
+  amount          Float
+  currency        String
+  effectiveDateAt DateTime  @default(now())
+  quantity        Float
+  otherGoodQty    String?
+  goodQty         GoodQty
+
+  @@map("order_items")
+}
+
+model Commodity {
+  id                String         @id @default(uuid())
+  name              String
+  sellingPrices     SellingPrice[]
+  company           Company        @relation(fields: [companyId], references: [id])
+  commodityMetadata Json?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  companyId         String
+  organization      Organization   @relation(fields: [organizationId], references: [id])
+  saleItems         SaleItem[]
+  orderItems        OrderItem[]
+  organizationId    String
+
+  @@unique([organizationId, name])
+  @@map("commodities")
+}
+
+model Company {
+  id             String       @id @default(uuid())
+  name           String
+  owner          String?
+  location       String?
+  contact        String?
+  email          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  commodities    Commodity[]
+  orders         Order[]
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+
+  @@unique([organizationId, name])
+  @@map("companies")
+}
+
+model SellingPrice {
+  id                     String     @id @default(uuid())
+  baseAmount             Float
+  specialBaseAmount      Float?
+  wholesaleAmount        Float
+  isCurrentPrice         Boolean    @default(true)
+  specialWholesaleAmount Float?
+  promotionAmount        Float?
+  currency               String
+  effectiveDateAt        DateTime   @default(now())
+  goodQty                GoodQty
+  otherGoodQty           String?
+  commodity              Commodity? @relation(fields: [commodityId], references: [id])
+  commodityId            String?
+
+  @@map("selling_prices")
+}
+
+enum GoodQty {
+  PIECE
+  PACKET
+  ROLL
+  SACHET
+  SAC
+  BUNDLE
+  BOX
+  PAIR
+  LITRES
+  JERRICAN
+  CARTOON
+  OTHER
+}
+
+model Sale {
+  id             String       @id @default(uuid())
+  soldAt         DateTime     @default(now())
+  buyer          Buyer        @relation(fields: [buyerId], references: [id])
+  buyerId        String
+  saleItems      SaleItem[]
+  soldBy         User?        @relation(fields: [soldById], references: [id])
+  soldById       String?
+  totalAmount    Float
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  updatedAt      DateTime     @updatedAt
+
+  @@map("sales")
+}
+
+model SaleItem {
+  id           String    @id @default(uuid())
+  sale         Sale      @relation(fields: [saleId], references: [id])
+  saleId       String
+  commodity    Commodity @relation(fields: [commodityId], references: [id])
+  commodityId  String
+  amount       Float
+  unitPrice    Float
+  currency     String
+  quantity     Float
+  otherGoodQty String?
+  goodQty      GoodQty
+  saleType     SaleType
+
+  @@map("sale_items")
+}
+
+model Buyer {
+  id             String       @id @default(uuid())
+  name           String
+  contact        String?
+  email          String?
+  sales          Sale[]
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, contact])
+  @@map("buyers")
+}
+
+enum SaleType {
+  BASE
+  SPECIAL_BASE
+  WHOLESALE
+  SPECIAL_WHOLESALE
+  PROMOTION
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  activeOrganizationId String?
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model Organization {
+  id          String       @id
+  name        String
+  slug        String
+  logo        String?
+  createdAt   DateTime
+  metadata    String?
+  members     Member[]
+  invitations Invitation[]
+  buyers      Buyer[]
+  commodities Commodity[]
+  companies   Company[]
+  orders      Order[]
+  sales       Sale[]
+  updatedAt   DateTime     @updatedAt
+
+  @@unique([slug])
+  @@map("organization")
+}
+
+model Member {
+  id             String       @id
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           String       @default("member")
+  createdAt      DateTime
+
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
+  @@map("member")
+}
+
+model Invitation {
+  id             String       @id
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String
+  role           String?
+  status         String       @default("pending")
+  expiresAt      DateTime
+  createdAt      DateTime     @default(now())
+  inviterId      String
+  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, email])
+  @@index([organizationId])
+  @@index([email])
+  @@map("invitation")
+}
