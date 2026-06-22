@@ -23,7 +23,7 @@ import { authClient } from "@/lib/auth-client";
 import { signUpSchema, SignUpSchema } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -32,10 +32,19 @@ export default function SignUpForm() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>(undefined);
   const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const [urlRedirect] = useState<string | undefined>(
+    searchParams.get("redirect") as string,
+  );
+  const [urlEmail] = useState<string | undefined>(
+    searchParams.get("email") as string,
+  );
+
   const form = useForm<SignUpSchema>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      email: "",
+      email: urlEmail,
       name: "",
       password: "",
       passwordConfirmation: "",
@@ -49,13 +58,13 @@ export default function SignUpForm() {
         email,
         password,
         name,
-        callbackURL: "/",
+        callbackURL: urlRedirect || "/",
       });
       if (error) {
         setError(error.message || "Something went wrong.");
       } else {
         toast.success("Sign up successful");
-        router.push("/");
+        router.push(urlRedirect || "/");
       }
     });
   }

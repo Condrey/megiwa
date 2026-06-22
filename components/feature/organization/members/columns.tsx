@@ -4,6 +4,7 @@ import { UserAvatar } from "@/components/user-avatar";
 import { ActiveOrganization } from "@/lib/auth";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "date-fns";
+import ButtonInviteMember from "./button-invite-member";
 
 export const useMembersColumns: ColumnDef<ActiveOrganization["members"][0]>[] =
   [
@@ -56,7 +57,11 @@ export const useMembersColumns: ColumnDef<ActiveOrganization["members"][0]>[] =
         <DataTableColumnHeader column={column} title="Action" />
       ),
       cell({ row }) {
-        return <></>;
+        return (
+          <>
+            <ButtonInviteMember>Invite</ButtonInviteMember>
+          </>
+        );
       },
     },
   ];

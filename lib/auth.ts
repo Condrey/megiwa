@@ -1,3 +1,4 @@
+import { sendOrganizationInvitation } from "@/app/api/auth/send-organization-invitation";
 import { hash as argonHash, verify as argonVerify } from "argon2";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
@@ -7,7 +8,20 @@ import prisma from "./prisma";
 export const auth = betterAuth({
   plugins: [
     organization({
-      requireEmailVerificationOnInvitation: true,
+      requireEmailVerificationOnInvitation: false,
+      async sendInvitationEmail(data) {
+        const inviteLink = `${process.env.NEXT_PUBLIC_BASE_URL}/invitation/accept-invitation/${data.id}`;
+        const { error } = await sendOrganizationInvitation({
+          email: data.email,
+          teamName: data.organization.name,
+          invitedByUsername: data.inviter.user.name,
+          inviteLink,
+        });
+        if (error) {
+          console.error("Email Error: ", error.message);
+          throw Error(error.message, { cause: error.name });
+        }
+      },
       organizationHooks: {},
     }),
   ],

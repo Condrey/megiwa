@@ -1,8 +1,8 @@
 "use client";
 
 import { getOrganizationBySlug } from "@/components/feature/organization/action";
+import ButtonInviteMember from "@/components/feature/organization/members/button-invite-member";
 import ListOfMembers from "@/components/feature/organization/members/list-of-members";
-import SendButton from "@/components/feature/organization/members/send-button";
 import SlugOrganizationDetails from "@/components/feature/organization/slug-organization-details";
 import ErrorContainer from "@/components/query-container/error-container";
 import { ActiveOrganization } from "@/lib/auth";
@@ -31,7 +31,7 @@ export default function PageClient({ slug, initialData }: Props) {
         organization={organization}
         className="max-h-fit md:max-w-sm w-full"
       />
-      <SendButton />
+      <ButtonInviteMember>Invite</ButtonInviteMember>
       <ListOfMembers
         initialData={organization.members}
         organizationSlug={organization.slug}
