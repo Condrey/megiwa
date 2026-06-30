@@ -29,6 +29,7 @@ model User {
 
   members     Member[]
   invitations Invitation[]
+  payments    Payment[]
 
   @@map("user")
 }
@@ -44,6 +45,8 @@ model Order {
   orderDate      DateTime     @default(now())
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId String
+  balance        Float        @default(0)
+  payments       Payment[]
   updatedAt      DateTime     @updatedAt
 
   @@map("orders")
@@ -145,6 +148,8 @@ model Sale {
   totalAmount    Float
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId String
+  balance        Float        @default(0)
+  payments       Payment[]
   updatedAt      DateTime     @updatedAt
 
   @@map("sales")
@@ -167,6 +172,23 @@ model SaleItem {
   @@map("sale_items")
 }
 
+model Payment {
+  id         String   @id @default(uuid())
+  amount     Float
+  paidAt     DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  paidBy     Buyer    @relation(fields: [buyerId], references: [id])
+  receivedBy User     @relation(fields: [userId], references: [id])
+  sale       Sale?    @relation(fields: [saleId], references: [id])
+  saleId     String?
+  buyerId    String
+  userId     String
+  order      Order?   @relation(fields: [orderId], references: [id])
+  orderId    String?
+
+  @@map("payments")
+}
+
 model Buyer {
   id             String       @id @default(uuid())
   name           String
@@ -177,6 +199,7 @@ model Buyer {
   organizationId String
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+  payments       Payment[]
 
   @@unique([organizationId, contact])
   @@map("buyers")

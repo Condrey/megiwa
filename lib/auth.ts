@@ -84,3 +84,4 @@ export type Session = typeof auth.$Infer.Session;
 export type User = typeof auth.$Infer.Session.user;
 export type SessionUser = typeof auth.$Infer.Session.session;
 export type ActiveOrganization = typeof auth.$Infer.ActiveOrganization;
+export type MemberData = typeof auth.$Infer.Member;

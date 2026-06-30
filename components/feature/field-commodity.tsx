@@ -74,7 +74,7 @@ export default function FieldCommodity<T extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <Popover>
+          <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <FormControl>
                 <Button

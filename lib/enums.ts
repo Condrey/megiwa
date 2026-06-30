@@ -1,4 +1,4 @@
-import { GoodQty } from "./generated/prisma/enums";
+import { GoodQty, SaleType } from "./generated/prisma/enums";
 
 // role
 export const allGoodQuantities = Object.values(GoodQty);
@@ -53,5 +53,31 @@ export const goodQuantities: Record<
   OTHER: {
     plural: "other",
     singular: "other",
+  },
+};
+
+export const saleTypes: Record<
+  SaleType,
+  { title: string; abbreviation: string }
+> = {
+  WHOLESALE: {
+    title: "Wholesale",
+    abbreviation: "Wholesale",
+  },
+  SPECIAL_WHOLESALE: {
+    title: "Special Wholesale",
+    abbreviation: "Sp.Wholesale",
+  },
+  BASE: {
+    title: "Retail",
+    abbreviation: "Retail",
+  },
+  SPECIAL_BASE: {
+    title: "Special Retail",
+    abbreviation: "Sp.Retail",
+  },
+  PROMOTION: {
+    title: "Promotions",
+    abbreviation: "Promotion",
   },
 };

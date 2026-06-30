@@ -7,11 +7,19 @@ import {
   UseControllerProps,
   useController,
 } from "react-hook-form";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "../ui/input-group";
 import "./style.css";
 
 interface NumberInputProps<T extends FieldValues>
   extends
-    Omit<React.InputHTMLAttributes<HTMLInputElement>, "defaultValue" | "name">,
+    Omit<
+      React.InputHTMLAttributes<HTMLInputElement>,
+      "defaultValue" | "name" | "disabled"
+    >,
     UseControllerProps<T> {
   prefix?: string;
   suffix?: string;
@@ -22,33 +30,22 @@ const NumberInput = React.forwardRef<
   HTMLInputElement,
   NumberInputProps<FieldValues>
 >(({ prefix, suffix, postChange, className, ...props }, ref) => {
-  const { field } = useController(props);
+  const { field, fieldState, formState } = useController(props);
 
   return (
-    <div className="relative">
-      {prefix && (
-        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground">
-          {prefix}
-        </span>
-      )}
-      <input
+    <InputGroup className={props.disabled ? "" : ""}>
+      {prefix && <InputGroupAddon>{prefix}</InputGroupAddon>}
+      <InputGroupInput
         type="number"
-        className={cn(
-          `ps-${prefix ? 12 : 4}`,
-          `pe-${suffix ? 12 : 4}`,
-          "no-caret",
-          "flex h-8 w-full rounded-md border border-input bg-input/30 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-
-          className,
-        )}
+        className={cn("no-caret", className)}
         {...field}
         {...props}
+        disabled={false}
         ref={ref}
         value={field.value ?? ""}
         onChange={(e) => {
           const value = e.target.value;
           const parsedValue = value === "" ? "" : Number(value);
-
           field.onChange(parsedValue);
           if (postChange) {
             postChange(value === "" ? 0 : Number(value));
@@ -56,12 +53,8 @@ const NumberInput = React.forwardRef<
         }}
       />
 
-      {suffix && (
-        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground">
-          {suffix}
-        </span>
-      )}
-    </div>
+      {suffix && <InputGroupAddon>{suffix}</InputGroupAddon>}
+    </InputGroup>
   );
 });
 

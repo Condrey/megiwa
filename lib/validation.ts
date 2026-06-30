@@ -148,7 +148,7 @@ export const saleItemSchema = z
       .optional()
       .describe("Unique identifier(UUIDV4) for the sale"),
     goodQty: z.enum(GoodQty, { error: "Please select a correct unit." }),
-    otherGoodQty: z.string().optional(),
+    otherGoodQty: z.string().nullish(),
     quantity: z
       .number({ error: "Enter a correct quantity" })
       .min(1, { error: "Enter at least one quantity" })
@@ -171,6 +171,14 @@ export const saleItemSchema = z
         code: "custom",
         message: "Please choose or create a commodity",
         path: ["commodity"],
+      });
+    }
+    if (data.goodQty === "OTHER" && !data.otherGoodQty) {
+      ctx.addIssue({
+        code: "custom",
+        message:
+          "When the good qty is chosen as OTHER, you need to define a custom qty type.",
+        path: ["otherGoodQty"],
       });
     }
   });

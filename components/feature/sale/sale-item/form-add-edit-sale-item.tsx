@@ -2,6 +2,7 @@
 import { NumberInput } from "@/components/number-input/number-input";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import LoadingButton from "@/components/ui/loading-button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { GoodQty, SaleType } from "@/lib/generated/prisma/enums";
@@ -58,6 +59,7 @@ export default function FormAddEditSaleItem({
       otherGoodQty: saleItem?.otherGoodQty,
     },
   });
+  const watchedGoodQty = form2.watch("goodQty");
   const errors = getZodErrors(form2.formState.errors);
 
   function submitForm(data: SaleItemSchema) {
@@ -73,86 +75,109 @@ export default function FormAddEditSaleItem({
   }
 
   return (
-    <Form {...form2}>
-      <TableRow className="*:border-r *:last:border-r-0">
-        <TableCell>{String(index + 1).padStart(2, "0")}</TableCell>
-        <TableCell>
-          <FormField
-            control={form2.control}
-            name={"quantity"}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <NumberInput placeholder="qty" {...field} />
-                </FormControl>
-              </FormItem>
+    <>
+      {/* <pre>{JSON.stringify(form.watch("saleItems"), null, 2)}</pre> */}
+      <Form {...form2}>
+        <TableRow className="*:border-r *:last:border-r-0">
+          <TableCell className="text-muted-foreground w-12">
+            {String(index + 1).padStart(2, "0")}
+          </TableCell>
+          <TableCell className="w-24">
+            <FormField
+              control={form2.control}
+              name={"quantity"}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <NumberInput placeholder="qty" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </TableCell>
+          <TableCell className="w-56 space-y-2">
+            <FieldUnit form={form2} name="goodQty" />
+
+            {watchedGoodQty === "OTHER" && (
+              <FormField
+                control={form2.control}
+                name={"otherGoodQty"}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        placeholder="custom qty"
+                        {...field}
+                        value={field.value!}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
             )}
-          />
-        </TableCell>
-        <TableCell>
-          <FieldUnit form={form2} name="goodQty" />
-        </TableCell>
-        <TableCell className="min-w-3xs">
-          <FieldCommodity
-            form={form2}
-            name="commodity"
-            company={form2.getValues("commodity.company")}
-          />
-        </TableCell>
-        <TableCell className="flex  *:flex-1 w-sm gap-2">
-          <FieldUnitPrice form={form2} />
-        </TableCell>
-        <TableCell>
-          <FieldAmount form={form2} />
-        </TableCell>
-        <TableCell>
-          <LoadingButton
-            type="button"
-            loading={isPending}
-            variant={"secondary"}
-            onClick={form2.handleSubmit(submitForm)}
-          >
-            {saleItem ? (
-              <>
-                <Edit2Icon className="inline" /> Edit
-              </>
-            ) : (
-              <>
-                <PlusIcon className="inline" /> Add
-              </>
-            )}
-          </LoadingButton>
-        </TableCell>
-      </TableRow>
-      {/* displaying the errors  */}
-      {!!errors.length && (
-        <TableRow>
-          <TableCell colSpan={7} className="space-y-1">
-            <div className="flex justify-between items-center gap-4 max-w-xl">
-              <h2 className="underline text-destructive">
-                Errors in entered fields
-              </h2>
-              <Button
-                type="button"
-                onClick={() => form2.clearErrors()}
-                variant={"destructive"}
-              >
-                Clear errors
-              </Button>
-            </div>
-            <h4 className="text-muted-foreground  font-serif">
-              Please fix the following errors, and continue
-            </h4>
-            <ul className="list-decimal list-inside space-y-0.5">
-              {errors.map(({ field, message }) => (
-                <li key={field}>
-                  <strong className="capitalize">{field}:</strong> {message}
-                </li>
-              ))}
-            </ul>
+          </TableCell>
+          <TableCell className="min-w-3xs">
+            <FieldCommodity
+              form={form2}
+              name="commodity"
+              company={form2.getValues("commodity.company")}
+            />
+          </TableCell>
+          <TableCell className="flex  *:flex-1 w-sm gap-2">
+            <FieldUnitPrice form={form2} />
+          </TableCell>
+          <TableCell>
+            <FieldAmount form={form2} />
+          </TableCell>
+          <TableCell>
+            <LoadingButton
+              type="button"
+              loading={isPending}
+              variant={"secondary"}
+              onClick={form2.handleSubmit(submitForm)}
+            >
+              {saleItem ? (
+                <>
+                  <Edit2Icon className="inline" /> Edit
+                </>
+              ) : (
+                <>
+                  <PlusIcon className="inline" /> Add
+                </>
+              )}
+            </LoadingButton>
           </TableCell>
         </TableRow>
-      )}
-    </Form>
+        {/* displaying the errors  */}
+        {!!errors.length && (
+          <TableRow>
+            <TableCell colSpan={7} className="space-y-1">
+              <div className="flex justify-between items-center gap-4 max-w-xl">
+                <h2 className="underline text-destructive">
+                  Errors in entered fields
+                </h2>
+                <Button
+                  type="button"
+                  onClick={() => form2.clearErrors()}
+                  variant={"destructive"}
+                >
+                  Clear errors
+                </Button>
+              </div>
+              <h4 className="text-muted-foreground  font-serif">
+                Please fix the following errors, and continue
+              </h4>
+              <ul className="list-decimal list-inside space-y-0.5">
+                {errors.map(({ field, message }) => (
+                  <li key={field}>
+                    <strong className="capitalize">{field}:</strong> {message}
+                  </li>
+                ))}
+              </ul>
+            </TableCell>
+          </TableRow>
+        )}
+      </Form>
+    </>
   );
 }

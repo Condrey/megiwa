@@ -13,6 +13,7 @@ import { authClient } from "./auth-client";
 
 export const MOBILE_MAX_ITEMS = 10;
 export const SUPER_ADMIN_USER = "super-admin";
+export const DEFAULT_PASSWORD = "defaultPassword123!";
 export type NavLink = { title: string; href: string; description: string };
 export type NavLinkGroup = {
   title: string;

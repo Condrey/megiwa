@@ -1,4 +1,4 @@
-import ButtonAcceptDenyInvitation from "@/components/feature/organization/invitaions/button-accept-deny-invitation";
+import ButtonAcceptDenyInvitation from "@/components/feature/organization/invitations/button-accept-deny-invitation";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import {

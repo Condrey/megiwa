@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import LoadingButton from "@/components/ui/loading-button";
+import { useCustomSearchParams } from "@/hooks/use-custom-search-param";
 import { authClient } from "@/lib/auth-client";
 import { signUpSchema, SignUpSchema } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,6 +33,8 @@ export default function SignUpForm() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>(undefined);
   const router = useRouter();
+  const { getNavigationLinkWithPathnameWithoutUpdate } =
+    useCustomSearchParams();
 
   const searchParams = useSearchParams();
   const [urlRedirect] = useState<string | undefined>(
@@ -147,7 +150,10 @@ export default function SignUpForm() {
           <CardFooter className="flex flex-row justify-center">
             <span className="text-center">
               Already have an account?{" "}
-              <Link href={"/sign-in"} className="underline hover:text-primary">
+              <Link
+                href={getNavigationLinkWithPathnameWithoutUpdate("/sign-in")}
+                className="underline hover:text-primary"
+              >
                 Sign in
               </Link>
             </span>

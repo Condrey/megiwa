@@ -1,5 +1,14 @@
 import { Prisma } from "./generated/prisma/client";
 
+// Member
+export const memberDataInclude = {
+  user: true,
+  organization: true,
+} satisfies Prisma.MemberInclude;
+export type MemberData = Prisma.MemberGetPayload<{
+  include: typeof memberDataInclude;
+}>;
+
 // Buyer
 export const buyerDataInclude = {} satisfies Prisma.BuyerInclude;
 export type BuyerData = Prisma.BuyerGetPayload<{
@@ -51,6 +60,7 @@ export const saleDataInclude = {
   buyer: true,
   soldBy: true,
   saleItems: { include: { commodity: true } },
+  payments: true,
   _count: { select: { saleItems: true } },
 } satisfies Prisma.SaleInclude;
 export type SaleData = Prisma.SaleGetPayload<{

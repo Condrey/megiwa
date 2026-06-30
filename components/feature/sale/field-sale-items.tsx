@@ -19,10 +19,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { goodQuantities } from "@/lib/enums";
+import { goodQuantities, saleTypes } from "@/lib/enums";
 import { cn, formatCurrency, formatNumber } from "@/lib/utils";
 import { useState } from "react";
 import { EmptyContainer } from "../../query-container/empty-container";
+import { flattenCommodityMetadata } from "../commodity/utils";
 import FormAddEditSaleItem from "./sale-item/form-add-edit-sale-item";
 
 interface Props {
@@ -53,15 +54,15 @@ export default function FieldSaleItems({ form, className }: Props) {
                 <Table>
                   <TableHeader>
                     <TableRow className="*:border-r *:last:border-r-0 *:font-bold *:uppercase ">
-                      <TableHead className="text-muted-foreground">
+                      <TableHead className="text-muted-foreground w-12">
                         s/n
                       </TableHead>
-                      <TableHead>Qty</TableHead>
-                      <TableHead>Unit</TableHead>
-                      <TableHead>Item</TableHead>
-                      <TableHead className="w-sm flex">Unit Price</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Action</TableHead>
+                      <TableHead className="w-24">Qty</TableHead>
+                      <TableHead className="w-56">Unit</TableHead>
+                      <TableHead className="w-60">Item</TableHead>
+                      <TableHead className="min-w-56">Unit Price</TableHead>
+                      <TableHead className="w-56">Amount</TableHead>
+                      <TableHead className="w-56">Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -124,27 +125,35 @@ function RowItem({ index, item, form }: RowItemProps) {
     name: "saleItems",
   });
   const { plural, singular } = goodQuantities[item.goodQty];
-  const unit = (item.otherGoodQty ?? item.quantity === 1) ? singular : plural;
+  const unit = item.otherGoodQty ?? (item.quantity === 1 ? singular : plural);
   return (
     <>
       {closeEditView ? (
         <TableRow key={index} className="*:border-r *:last:border-r-0">
-          <TableCell className="text-muted-foreground">
+          <TableCell className="text-muted-foreground w-12">
             {String(index + 1).padStart(2, "0")}
           </TableCell>
-          <TableCell>{formatNumber(item.quantity)}</TableCell>
-          <TableCell>{unit}</TableCell>
-          <TableCell className="max-w-xs">
+          <TableCell className="w-24">{formatNumber(item.quantity)}</TableCell>
+          <TableCell className="w-56">{unit}</TableCell>
+          <TableCell className="w-60">
             <p className="line-clamp-2 text-wrap">
-              {item.commodity.name},{" "}
+              {item.commodity.name}
               <span className="text-muted-foreground text-xs">
-                {item.commodity.company?.name}
+                - {item.commodity.company?.name || "No registered company"}
               </span>
             </p>
+            <p className="line-clamp-1 text-xs text-muted-foreground">
+              {flattenCommodityMetadata(item.commodity.commodityMetadata)}
+            </p>
           </TableCell>
-          <TableCell>{formatCurrency(item.amount / item.quantity)}</TableCell>
-          <TableCell>{formatCurrency(item.amount)}</TableCell>
-          <TableCell>
+          <TableCell className="w-56">
+            {formatCurrency(item.amount / item.quantity)}
+            <span className="text-muted-foreground ml-2">
+              ({saleTypes[item.saleType].abbreviation})
+            </span>
+          </TableCell>
+          <TableCell className="w-56">{formatCurrency(item.amount)}</TableCell>
+          <TableCell className="w-56">
             <Button
               variant={"ghost"}
               size={"icon-sm"}
