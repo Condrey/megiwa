@@ -152,7 +152,6 @@ export default function SellingPriceSection({
                     <NumberInput
                       placeholder="special base amount..."
                       {...field}
-                      value={field.value!}
                     />
                   </FormControl>
                   <FormDescription>This is optional</FormDescription>
@@ -170,7 +169,6 @@ export default function SellingPriceSection({
                     <NumberInput
                       placeholder="special wholesaleAmount amount..."
                       {...field}
-                      value={field.value!}
                     />
                   </FormControl>
                   <FormDescription>This is optional</FormDescription>
@@ -186,11 +184,7 @@ export default function SellingPriceSection({
                 <FormItem>
                   <FormLabel>Promotion price</FormLabel>
                   <FormControl>
-                    <NumberInput
-                      placeholder="promotion amount..."
-                      {...field}
-                      value={field.value!}
-                    />
+                    <NumberInput placeholder="promotion amount..." {...field} />
                   </FormControl>
                   <FormDescription>This is optional</FormDescription>
 
