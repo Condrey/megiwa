@@ -62,7 +62,6 @@ export default function FieldCommodity<T extends FieldValues>({
   if (status === "pending") {
     return (
       <div className="w-full space-y-3">
-        <Skeleton className="h-6 w-1/4" />
         <Skeleton className="h-9 w-full" />
       </div>
     );
