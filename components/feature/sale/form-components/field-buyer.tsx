@@ -24,14 +24,14 @@ import { SaleSchema } from "@/lib/validation";
 import { ChevronsUpDownIcon } from "lucide-react";
 import { useState } from "react";
 import { UseFormReturn } from "react-hook-form";
-import { EmptyContainer } from "../../query-container/empty-container";
-import ErrorContainer from "../../query-container/error-container";
-import ButtonAddEditBuyer from "../buyer/button-add-edit-buyer";
+import { EmptyContainer } from "../../../query-container/empty-container";
+import ErrorContainer from "../../../query-container/error-container";
+import ButtonAddEditBuyer from "../../buyer/button-add-edit-buyer";
 import {
   ChosenBuyerCommandItem,
   CommandItemBuyer,
-} from "../buyer/chosen-buyer-command-item";
-import { useBuyersQuery } from "../buyer/query";
+} from "../../buyer/chosen-buyer-command-item";
+import { useBuyersQuery } from "../../buyer/query";
 
 interface Props {
   form: UseFormReturn<SaleSchema>;

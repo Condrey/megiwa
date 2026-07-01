@@ -1,8 +1,7 @@
-import { SaleItemSchema, SaleSchema } from "@/lib/validation";
-import { Edit2Icon, NotepadTextIcon, Trash2Icon } from "lucide-react";
-import { useFieldArray, UseFormReturn } from "react-hook-form";
+import { SaleSchema } from "@/lib/validation";
+import { NotepadTextIcon } from "lucide-react";
+import { UseFormReturn } from "react-hook-form";
 
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -19,19 +18,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { goodQuantities, saleTypes } from "@/lib/enums";
-import { cn, formatCurrency, formatNumber } from "@/lib/utils";
-import { useState } from "react";
-import { EmptyContainer } from "../../query-container/empty-container";
-import { flattenCommodityMetadata } from "../commodity/utils";
-import FormAddEditSaleItem from "./sale-item/form-add-edit-sale-item";
+import { cn, formatCurrency } from "@/lib/utils";
+import { EmptyContainer } from "../../../query-container/empty-container";
+import SaleItemEditor from "../sale-item/sale-item-editor";
+import { RowItemSalesItems } from "./row-item-sales-items";
 
 interface Props {
   form: UseFormReturn<SaleSchema>;
   className?: string;
 }
 
-export default function FieldSaleItems({ form, className }: Props) {
+export default function TableSaleItems({ form, className }: Props) {
   const commodities = form.watch("saleItems");
 
   return (
@@ -69,14 +66,14 @@ export default function FieldSaleItems({ form, className }: Props) {
                     {commodities && !!commodities.length ? (
                       <>
                         {field.value.map((item, index) => (
-                          <RowItem
+                          <RowItemSalesItems
                             key={index}
                             index={index}
                             item={item}
                             form={form}
                           />
                         ))}
-                        <FormAddEditSaleItem
+                        <SaleItemEditor
                           index={commodities.length}
                           form={form}
                           closeEditView={() => {}}
@@ -85,7 +82,7 @@ export default function FieldSaleItems({ form, className }: Props) {
                       </>
                     ) : (
                       <>
-                        <FormAddEditSaleItem
+                        <SaleItemEditor
                           index={commodities?.length || 0}
                           form={form}
                           closeEditView={() => {}}
@@ -110,77 +107,6 @@ export default function FieldSaleItems({ form, className }: Props) {
         />
       </CardContent>
     </Card>
-  );
-}
-
-interface RowItemProps {
-  index: number;
-  item: SaleItemSchema;
-  form: UseFormReturn<SaleSchema>;
-}
-function RowItem({ index, item, form }: RowItemProps) {
-  const [closeEditView, setCloseEditView] = useState(true);
-  const { remove: deleteSaleItem } = useFieldArray({
-    control: form.control,
-    name: "saleItems",
-  });
-  const { plural, singular } = goodQuantities[item.goodQty];
-  const unit = item.otherGoodQty ?? (item.quantity === 1 ? singular : plural);
-  return (
-    <>
-      {closeEditView ? (
-        <TableRow key={index} className="*:border-r *:last:border-r-0">
-          <TableCell className="text-muted-foreground w-12">
-            {String(index + 1).padStart(2, "0")}
-          </TableCell>
-          <TableCell className="w-24">{formatNumber(item.quantity)}</TableCell>
-          <TableCell className="w-56">{unit}</TableCell>
-          <TableCell className="w-60">
-            <p className="line-clamp-2 text-wrap">
-              {item.commodity.name}
-              <span className="text-muted-foreground text-xs">
-                - {item.commodity.company?.name || "No registered company"}
-              </span>
-            </p>
-            <p className="line-clamp-1 text-xs text-muted-foreground">
-              {flattenCommodityMetadata(item.commodity.commodityMetadata)}
-            </p>
-          </TableCell>
-          <TableCell className="w-56">
-            {formatCurrency(item.amount / item.quantity)}
-            <span className="text-muted-foreground ml-2">
-              ({saleTypes[item.saleType].abbreviation})
-            </span>
-          </TableCell>
-          <TableCell className="w-56">{formatCurrency(item.amount)}</TableCell>
-          <TableCell className="w-56">
-            <Button
-              variant={"ghost"}
-              size={"icon-sm"}
-              type="button"
-              onClick={() => setCloseEditView(false)}
-            >
-              <Edit2Icon />
-            </Button>
-            <Button
-              variant={"ghost"}
-              size={"icon-sm"}
-              type="button"
-              onClick={() => deleteSaleItem(index)}
-            >
-              <Trash2Icon />
-            </Button>
-          </TableCell>
-        </TableRow>
-      ) : (
-        <FormAddEditSaleItem
-          form={form}
-          index={index}
-          saleItem={item}
-          closeEditView={setCloseEditView}
-        />
-      )}
-    </>
   );
 }
 

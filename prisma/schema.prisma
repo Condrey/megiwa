@@ -82,7 +82,7 @@ model Commodity {
   orderItems        OrderItem[]
   organizationId    String
 
-  @@unique([organizationId, name])
+  @@unique([organizationId, name, commodityMetadata])
   @@map("commodities")
 }
 

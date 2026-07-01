@@ -4,7 +4,7 @@ import { SaleData } from "@/lib/types";
 
 import { Button, ButtonProps } from "@/components/ui/button";
 import { useState } from "react";
-import FormAddEditSale from "./form-add-edit-sale";
+import FormAddEditSale from "./form-components/form-add-edit-sale";
 
 interface Props extends ButtonProps {
   sale?: SaleData;

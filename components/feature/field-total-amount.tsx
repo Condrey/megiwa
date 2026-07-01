@@ -50,7 +50,12 @@ export default function FieldTotalAmount<T extends FieldValues>({
               </span>
             </FormLabel>
             <FormControl>
-              <NumberInput placeholder="total amount" {...field} />
+              <NumberInput
+                disabled
+                prefix={"UGX"}
+                placeholder="total amount"
+                {...field}
+              />
             </FormControl>
             <FormDescription />
           </FormItem>

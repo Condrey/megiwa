@@ -191,16 +191,30 @@ export const saleSchema = z
       .optional()
       .describe("Unique identifier(UUIDV4) for the sale"),
     soldById: z.string().describe("ID of the seller"),
-    buyerId: z.string().describe("ID of the buyer"),
+    buyerId: z
+      .string()
+      .min(1, "You need to choose a buyer")
+      .describe("ID of the buyer"),
     totalAmount: z.number().describe("Total amount for the sale"),
     saleItems: z.array(saleItemSchema).describe("List of items in the sale"),
+    payment: z
+      .number()
+      .min(1, { error: "Please indicate the right amount paid" }),
+    balance: z.number().optional(),
   })
   .superRefine((data, ctx) => {
     if (!data.saleItems.length) {
       ctx.addIssue({
         code: "custom",
-        message: "Enter at least one sale item.",
+        message: "Add at least one sale item.",
         path: ["saleItems"],
+      });
+    }
+    if (data.payment < 1 || data.payment === undefined) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Please enter payment to proceed",
+        path: ["payment"],
       });
     }
   });

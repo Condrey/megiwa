@@ -17,14 +17,29 @@ interface Props {
 export function FieldUnitPrice({ form }: Props) {
   const commodityId = form.watch("commodity.id");
   const goodQty = form.watch("goodQty") || GoodQty.PIECE;
+  const saleType = form.watch("saleType");
 
   const query = useCurrentSellingPricesQuery({ commodityId, goodQty });
   const { data: currentSellingPrice, status } = query;
 
   useEffect(() => {
-    const price = currentSellingPrice?.baseAmount;
+    function getSellingPrice() {
+      switch (saleType) {
+        case "BASE":
+          return currentSellingPrice?.baseAmount;
+        case "PROMOTION":
+          return currentSellingPrice?.promotionAmount;
+        case "SPECIAL_BASE":
+          return currentSellingPrice?.specialBaseAmount;
+        case "SPECIAL_WHOLESALE":
+          return currentSellingPrice?.specialWholesaleAmount;
+        case "WHOLESALE":
+          return currentSellingPrice?.wholesaleAmount;
+      }
+    }
+    const price = getSellingPrice();
     form.setValue("unitPrice", price || 0);
-  }, [currentSellingPrice?.baseAmount, form]);
+  }, [currentSellingPrice, form, saleType]);
   if (status === "error") {
     return (
       <ErrorContainer
@@ -61,10 +76,11 @@ export function FieldUnitPrice({ form }: Props) {
       <FormField
         control={form.control}
         name={"unitPrice"}
+        disabled
         render={({ field }) => (
           <FormItem>
             <FormControl>
-              <NumberInput placeholder="unit price" {...field} />
+              <NumberInput prefix="UGX" placeholder="unit price" {...field} />
             </FormControl>
           </FormItem>
         )}

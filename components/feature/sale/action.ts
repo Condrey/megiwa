@@ -1,9 +1,11 @@
 "use server";
 
+import { auth } from "@/lib/auth";
 import { getServerSession } from "@/lib/get-session";
 import prisma from "@/lib/prisma";
 import { saleDataInclude } from "@/lib/types";
 import { saleSchema, SaleSchema } from "@/lib/validation";
+import { headers } from "next/headers";
 import { unauthorized } from "next/navigation";
 import { cache } from "react";
 
@@ -22,10 +24,12 @@ export const getAllSales = cache(allSales);
 // but
 // only admins and owner can edit sale
 export async function upsertSale(input: SaleSchema) {
-  const { id, saleItems, buyerId, totalAmount } = saleSchema.parse(input);
-
-  const { session } = await getServerSession();
+  const { session, user } = await getServerSession();
   if (!session) unauthorized();
+
+  const { id, saleItems, buyerId, totalAmount, payment } =
+    saleSchema.parse(input);
+  const balance = totalAmount - payment;
 
   if (!id) {
     return await prisma.sale.create({
@@ -47,19 +51,32 @@ export async function upsertSale(input: SaleSchema) {
             skipDuplicates: true,
           },
         },
+        payments: {
+          create: {
+            amount: payment,
+            buyerId,
+            userId: session.userId,
+          },
+        },
+        balance,
         soldById: session.userId,
         organizationId: session.activeOrganizationId!,
       },
       include: saleDataInclude,
     });
   } else {
+    const { role } = await auth.api.getActiveMemberRole({
+      headers: await headers(),
+    });
+    if (role === "member")
+      throw new Error("You do not have the right permissions to edit a sale");
     return await prisma.sale.update({
       where: { id },
       data: {
         buyerId,
         totalAmount,
         saleItems: {
-          set: [],
+          deleteMany: {},
           createMany: {
             data: saleItems.map((item) => ({
               amount: item.quantity * item.unitPrice,
@@ -74,6 +91,14 @@ export async function upsertSale(input: SaleSchema) {
             skipDuplicates: true,
           },
         },
+        payments: {
+          create: {
+            amount: payment,
+            buyerId,
+            userId: session.userId,
+          },
+        },
+        balance,
         soldById: session.userId,
         organizationId: session.activeOrganizationId!,
       },

@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 "use client";
 
-import { Form, FormFooter } from "@/components/ui/form";
+import { ButtonGroupSeparator } from "@/components/ui/button-group";
+import { Card, CardContent } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
 import LoadingButton from "@/components/ui/loading-button";
 import {
   Sheet,
@@ -18,10 +20,12 @@ import {
 } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
-import FieldTotalAmount from "../field-total-amount";
+import FieldNumberInput from "../../field-number-input";
+import FieldTotalAmount from "../../field-total-amount";
+import { useUpsertSaleMutation } from "../mutation";
+import FieldBalance from "./field-balance";
 import FieldBuyer from "./field-buyer";
-import FieldSaleItems from "./field-sale-items";
-import { useUpsertSaleMutation } from "./mutation";
+import TableSaleItems from "./table-sale-items";
 
 interface Props {
   sale?: SaleData;
@@ -45,17 +49,33 @@ export default function FormAddEditSale({ sale, open, setOpen }: Props) {
               .commodityMetadata as CommodityMetadataSchema,
           },
           otherGoodQty: item.otherGoodQty!,
+          saleType: item.saleType || "BASE",
         })) || [],
+      payment: undefined!,
+      balance: sale?.balance,
     },
   });
   const salesItems = useWatch({ control: form.control, name: "saleItems" });
   const totalAmount =
     salesItems?.reduce((sum, item) => sum + (item.amount ?? 0), 0) ?? 0;
+  const previousPayments = sale?.payments?.reduce(
+    (amm, tot) => amm + tot.amount,
+    0,
+  );
 
-  const errors = getZodErrors(form.formState.errors, "H");
+  const errors = getZodErrors(form.formState.errors);
   const { mutate, isPending } = useUpsertSaleMutation();
+
   function submitForm(data: SaleSchema) {
-    mutate(data, { onSuccess: () => setOpen(false) });
+    if (!errors.length) {
+      mutate(data, {
+        onSuccess: () => {
+          setOpen(false);
+          form.reset();
+          form.setValue("payment", undefined!);
+        },
+      });
+    }
   }
 
   return (
@@ -72,15 +92,39 @@ export default function FormAddEditSale({ sale, open, setOpen }: Props) {
               onSubmit={form.handleSubmit(submitForm)}
               className="space-y-4 max-w-9xl mx-auto w-full items-stretch"
             >
-              <div className="flex gap-4 items-center w-full *:flex-1 max-w-4xl">
-                <FieldBuyer form={form} />
-                <FieldTotalAmount
-                  form={form}
-                  name="totalAmount"
-                  totalAmount={totalAmount}
-                />
-              </div>
-              <FieldSaleItems form={form} className="flex flex-col flex-1" />
+              <Card>
+                <CardContent className="flex gap-4 items-center flex-row w-full">
+                  <div className="flex items-center gap-3 *:flex-1 flex-1 max-w-4xl">
+                    <FieldBuyer form={form} />
+                    <FieldNumberInput
+                      form={form}
+                      name="payment"
+                      title="Payment amount"
+                      placeholder="amount being paid"
+                    />
+                  </div>
+                  <ButtonGroupSeparator />
+                  <FieldTotalAmount
+                    form={form}
+                    name="totalAmount"
+                    totalAmount={totalAmount}
+                  />
+                  <FieldBalance
+                    form={form}
+                    previousPayments={previousPayments}
+                  />
+                  <LoadingButton
+                    loading={isPending}
+                    size={"lg"}
+                    type="submit"
+                    disabled={!!errors.length}
+                    className="w-full max-w-[16rem]"
+                  >
+                    Submit sale
+                  </LoadingButton>
+                </CardContent>
+              </Card>
+              <TableSaleItems form={form} className="flex flex-col flex-1" />
               {!!errors.length && (
                 <div>
                   {
@@ -95,11 +139,6 @@ export default function FormAddEditSale({ sale, open, setOpen }: Props) {
                   }{" "}
                 </div>
               )}
-              <FormFooter>
-                <LoadingButton loading={isPending} type="submit">
-                  Submit sale
-                </LoadingButton>
-              </FormFooter>
             </form>
           </Form>
         </div>

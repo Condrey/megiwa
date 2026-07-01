@@ -56,6 +56,7 @@ export const goodQuantities: Record<
   },
 };
 
+export const allSaleTypes = Object.values(SaleType);
 export const saleTypes: Record<
   SaleType,
   { title: string; abbreviation: string }

@@ -15,7 +15,7 @@ import {
   SaleSchema,
 } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Edit2Icon, PlusIcon } from "lucide-react";
+import { PlusIcon, SaveIcon, XIcon } from "lucide-react";
 import { useTransition } from "react";
 import { useFieldArray, useForm, UseFormReturn } from "react-hook-form";
 import FieldCommodity from "../../field-commodity";
@@ -29,7 +29,7 @@ interface Props {
   form: UseFormReturn<SaleSchema>;
   closeEditView: (close: boolean) => void;
 }
-export default function FormAddEditSaleItem({
+export default function SaleItemEditor({
   index,
   form,
   saleItem,
@@ -40,6 +40,7 @@ export default function FormAddEditSaleItem({
     control: form.control,
     name: "saleItems",
   });
+
   const form2 = useForm<SaleItemSchema>({
     resolver: zodResolver(saleItemSchema),
     values: {
@@ -72,13 +73,13 @@ export default function FormAddEditSaleItem({
       }
     });
     form2.reset();
+    form.clearErrors("saleItems");
   }
 
   return (
     <>
-      {/* <pre>{JSON.stringify(form.watch("saleItems"), null, 2)}</pre> */}
       <Form {...form2}>
-        <TableRow className="*:border-r *:last:border-r-0">
+        <TableRow className="*:border-r *:last:border-r-0 ">
           <TableCell className="text-muted-foreground w-12">
             {String(index + 1).padStart(2, "0")}
           </TableCell>
@@ -123,29 +124,40 @@ export default function FormAddEditSaleItem({
               company={form2.getValues("commodity.company")}
             />
           </TableCell>
-          <TableCell className="flex  *:flex-1 w-sm gap-2">
+          <TableCell className="flex  *:flex-1 gap-2">
             <FieldUnitPrice form={form2} />
           </TableCell>
           <TableCell>
             <FieldAmount form={form2} />
           </TableCell>
           <TableCell>
-            <LoadingButton
-              type="button"
-              loading={isPending}
-              variant={"secondary"}
-              onClick={form2.handleSubmit(submitForm)}
-            >
-              {saleItem ? (
-                <>
-                  <Edit2Icon className="inline" /> Edit
-                </>
-              ) : (
-                <>
-                  <PlusIcon className="inline" /> Add
-                </>
+            <div className="gap-3 flex  items-center">
+              <LoadingButton
+                type="button"
+                loading={isPending}
+                variant={"secondary"}
+                onClick={form2.handleSubmit(submitForm)}
+              >
+                {saleItem ? (
+                  <>
+                    <SaveIcon className="inline" /> save
+                  </>
+                ) : (
+                  <>
+                    <PlusIcon className="inline" /> Add
+                  </>
+                )}
+              </LoadingButton>
+              {saleItem && (
+                <Button
+                  type="button"
+                  variant={"outline"}
+                  onClick={() => closeEditView(true)}
+                >
+                  <XIcon className="inline" /> Cancel
+                </Button>
               )}
-            </LoadingButton>
+            </div>
           </TableCell>
         </TableRow>
         {/* displaying the errors  */}

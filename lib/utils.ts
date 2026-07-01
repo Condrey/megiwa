@@ -16,9 +16,9 @@ export const getNameInitials = (name: string) => {
 };
 
 // should produce values like 1000 as 1k
-export function formatNumber(n: number): string {
+export function formatNumber(n: number, shouldNotCompact?: boolean): string {
   return Intl.NumberFormat("en-US", {
-    notation: "compact",
+    notation: shouldNotCompact ? "standard" : "compact",
     maximumFractionDigits: 1,
   }).format(n);
 }
