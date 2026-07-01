@@ -1,13 +1,13 @@
 import { Metadata } from "next";
-import SignInForm from "./form-sign-in";
 
 export const metadata: Metadata = {
-  title: "Sign in",
+  title: "Sign In",
 };
-export default function Page() {
+
+export function Page() {
   return (
-    <main className="flex  justify-center items-center flex-col px-4 min-h-svh">
-      <SignInForm />
-    </main>
+    <div className="h-svh flex flex-col justify-center items-center p-4">
+      Sign in page
+    </div>
   );
 }
